@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "960564267822",
+    "firebase_url": "https://western-figure-267011.firebaseio.com",
+    "project_id": "western-figure-267011",
+    "storage_bucket": "western-figure-267011.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960564267822:android:22882072b3689a207208bf",
+        "android_client_info": {
+          "package_name": "me.duckfollow.influencer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960564267822-f789hbkgtg67g7gdtor6rvnovndbrgk9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPiIyRvtUhPEOwxalBftSpxsUKSEgpHCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960564267822-f789hbkgtg67g7gdtor6rvnovndbrgk9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
