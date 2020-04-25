@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.ads.nativetemplates.NativeTemplateStyle
 import com.google.android.ads.nativetemplates.TemplateView
 import com.google.android.gms.ads.AdListener
@@ -22,16 +23,23 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import me.duckfollow.influencer.activity.ExchangeActivity
+import me.duckfollow.influencer.adapter.AdsAdapter
+import me.duckfollow.influencer.models.AdsModel
 import me.duckfollow.influencer.user.UserProfile
 import java.time.LocalDateTime
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
     lateinit var myRefUser: DatabaseReference
     lateinit var myRefUserSetting: DatabaseReference
     private lateinit var myRef_point:DatabaseReference
-
+    private lateinit var myRef_ads:DatabaseReference
     lateinit var UserSettingListener:ValueEventListener
+    lateinit var adsAdapter: AdsAdapter
+    val data_ads = ArrayList<AdsModel>()
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         myRefUser = database.child("user/"+android_id)
         myRefUserSetting = database.child("usersetting/"+android_id)
         myRef_point = database.child("point/"+android_id)
+        myRef_ads = database.child("ads/")
         val map = HashMap<String, Any>()
         map.put("id",android_id)
         map.put("date",current.toString())
@@ -174,6 +183,39 @@ class MainActivity : AppCompatActivity() {
             val i_exchange = Intent(this,ExchangeActivity::class.java)
             startActivity(i_exchange)
         }
+
+        val AdsListener = object :ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                data_ads.clear()
+                p0.children.forEach {mdataSnapshot: DataSnapshot? ->
+                    val c = mdataSnapshot
+                    val text = c?.child("text")?.getValue().toString()
+                    val img = c?.child("img")?.getValue().toString()
+                    val url = c?.child("url")?.getValue().toString()
+                    val isShow = c?.child("isShow")?.getValue().toString()
+
+                    data_ads.add(AdsModel(text,img,url))
+
+                }
+                Collections.shuffle(data_ads)
+                adsAdapter.notifyDataSetChanged()
+            }
+        }
+
+        myRef_ads.addValueEventListener(AdsListener)
+
+        list_ads.layoutManager = LinearLayoutManager(this)
+        list_ads.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        adsAdapter = AdsAdapter(data_ads,this)
+        list_ads.adapter = adsAdapter
+//        list_view_user.setScrollingTouchSlop(RecyclerView.TOUCH_SLOP_PAGING)
+//        val snapHelper = LinearSnapHelper() // Or PagerSnapHelper
+//        snapHelper.attachToRecyclerView(list_view_user)
     }
 
     override fun onStart() {
