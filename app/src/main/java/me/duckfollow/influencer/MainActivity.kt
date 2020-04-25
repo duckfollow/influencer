@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
 import com.google.android.ads.nativetemplates.NativeTemplateStyle
 import com.google.android.ads.nativetemplates.TemplateView
 import com.google.android.gms.ads.AdListener
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var myRefUserSetting: DatabaseReference
     private lateinit var myRef_point:DatabaseReference
     private lateinit var myRef_ads:DatabaseReference
+    private lateinit var myRef_app_setting:DatabaseReference
     lateinit var UserSettingListener:ValueEventListener
     lateinit var adsAdapter: AdsAdapter
     val data_ads = ArrayList<AdsModel>()
@@ -54,11 +56,31 @@ class MainActivity : AppCompatActivity() {
         myRefUserSetting = database.child("usersetting/"+android_id)
         myRef_point = database.child("point/"+android_id)
         myRef_ads = database.child("ads/")
+        myRef_app_setting = database.child("appsetting/")
         val map = HashMap<String, Any>()
         map.put("id",android_id)
         map.put("date",current.toString())
         map.put("time",UserProfile(this).getTimerDefault())
         myRefUser.updateChildren(map)
+
+        // app setting
+        val AppSettingListener = object :ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                val isShowAds = p0.child("isShowAds").getValue().toString().toBoolean()
+
+                if (isShowAds) {
+                    list_ads.visibility = View.VISIBLE
+                } else {
+                    list_ads.visibility = View.GONE
+                }
+            }
+        }
+
+        myRef_app_setting.addValueEventListener(AppSettingListener)
 
         MobileAds.initialize(this, "ca-app-pub-2582707291059118~8882306426");
         val adLoader = AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110")
@@ -214,8 +236,14 @@ class MainActivity : AppCompatActivity() {
         adsAdapter = AdsAdapter(data_ads,this)
         list_ads.adapter = adsAdapter
 //        list_view_user.setScrollingTouchSlop(RecyclerView.TOUCH_SLOP_PAGING)
-//        val snapHelper = LinearSnapHelper() // Or PagerSnapHelper
-//        snapHelper.attachToRecyclerView(list_view_user)
+        val snapHelper = LinearSnapHelper() // Or PagerSnapHelper
+        snapHelper.attachToRecyclerView(list_ads)
+
+        swipe_refresh_layout.setOnRefreshListener {
+            Collections.shuffle(data_ads)
+            adsAdapter.notifyDataSetChanged()
+            swipe_refresh_layout.isRefreshing = false
+        }
     }
 
     override fun onStart() {

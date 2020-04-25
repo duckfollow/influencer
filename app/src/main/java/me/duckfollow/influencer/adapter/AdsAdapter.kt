@@ -27,12 +27,13 @@ class AdsAdapter(val items : ArrayList<AdsModel>, val context: Context) : Recycl
         p0.btn_share.setOnClickListener {
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
-                putExtra(Intent.EXTRA_TITLE, "This is my text to send.")
-                type = "text/plain"
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+                putExtra(Intent.EXTRA_TEXT, items[p1].url)
+                putExtra(Intent.EXTRA_TITLE, items[p1].text)
+                type = "text/*"
             }
 
-            val shareIntent = Intent.createChooser(sendIntent, "This is my text to send.")
+            val shareIntent = Intent.createChooser(sendIntent, items[p1].text)
             context.startActivity(shareIntent)
         }
 
